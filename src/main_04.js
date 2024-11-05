@@ -75,9 +75,9 @@ router.post("/api/test", async (ctx) => {
       rollNumb = Math.floor(Math.random() * (movies.length - 1 + 0)) + 1;
     }
     // send a response back to the browser
-    ctx.response.body = movies[rollNumb];
+    ctx.response.body = { "sucess": true, message: movies[rollNumb] };
   } else {
-    ctx.response.body = celeb.message;
+    ctx.response.body = { "sucess": false, message: celeb.message };
   }
 
   //console.log("myParam:", ctx.request.url.searchParams.get(ctx.request.body));

@@ -9,7 +9,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Blotter/0.1.0/materials/rollingDistortMaterial.min.js"></script>
 </head>
 <body>
-    <h2>This is where the dice will be!</h2>
+    <h2>Want a Movie Scuggestion base off of your favorite actor?</h2>
     <div class="diceContainer">
         <input type="text" id="DiceName">
         <button id = "_roll">Roll</button>
@@ -61,13 +61,20 @@
                 .then((response) => response.json())
                 .then((rolledNumb) => {
                     const result = document.getElementById("rolledN");
-                    result.innerHTML = `
-                        <div class="other" id="title">${rolledNumb.title}</div>
-                        <img src="https://media.themoviedb.org/t/p/w300_and_h450_bestv2${rolledNumb.poster_path}"class="poster" />
-                        <h4 class="other">Review Average </h4>
-                        <h3 class="other">${rolledNumb.vote_average}</h3>
-                        <p class="other">Overview:<br> ${rolledNumb.overview}</p>
-                    `;
+                    if(rolledNumb.sucess){
+                        const _result = rolledNumb.message;
+                        console.log(JSON.stringify(rolledNumb));
+                        result.innerHTML = `
+                            <div class="other" id="title">${_result.title}</div>
+                            <img src="https://media.themoviedb.org/t/p/w300_and_h450_bestv2${_result.poster_path}"class="poster" />
+                            <h4 class="other">Review Average </h4>
+                            <h3 class="other">${_result.vote_average}</h3>
+                            <p class="other">Overview:<br> ${_result.overview}</p>
+                        `;
+                    }else{
+                        result.innerHTML = `<p>${rolledNumb.message}</p>`
+                    }
+                   
                     //textDistortion(rolledNumb.title);
                     
                 })
