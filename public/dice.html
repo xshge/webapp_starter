@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dice</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Blotter/0.1.0/blotter.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Blotter/0.1.0/materials/rollingDistortMaterial.min.js"></script>
+</head>
+<body>
+    <h2>This is where the dice will be!</h2>
+    <div class="diceContainer">
+        <input type="text" id="DiceName">
+        <button id = "_roll">Roll</button>
+        <div id="rolledN"></div>
+    </div>
+    
+
+    <script>
+        const bttn = document.getElementById("_roll");
+        function textDistortion(str){
+            var innerText = document.getElementById('title');
+           
+            var text = new Blotter.Text(`str`, {
+            family: "Monument",
+            size: 180,
+            fill: "white"
+        });
+
+            let material = new Blotter.RollingDistortMaterial();
+            material.uniforms.uSineDistortSpread.value = 0.035;
+            material.uniforms.uSineDistortCycleCount.value = 2;
+            material.uniforms.uSineDistortAmplitude.value = 0.03;
+            material.uniforms.uNoiseDistortVolatility.value = 15;
+            material.uniforms.uNoiseDistortAmplitude.value = 0.01;
+            material.uniforms.uRotation.value = 170;
+            material.uniforms.uSpeed.value = 0.08;
+
+            // these all properties u can set on Blotter.js Materials Documentation
+
+            let blotter = new Blotter(material, {
+                texts: text
+            });
+
+            let scope = blotter.forText(text);
+            scope.appendTo(innerText);
+        }
+        bttn.addEventListener("click", function(){  
+         let _name = document.getElementById("DiceName").value;
+         console.log(_name)
+            fetch(`/api/test`,{
+                method:"POST",
+                headers:{
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name:_name
+                })
+            })
+                .then((response) => response.json())
+                .then((rolledNumb) => {
+                    const result = document.getElementById("rolledN");
+                    result.innerHTML = `
+                        <div class="other" id="title">${rolledNumb.title}</div>
+                        <img src="https://media.themoviedb.org/t/p/w300_and_h450_bestv2${rolledNumb.poster_path}"class="poster" />
+                        <h4 class="other">Review Average </h4>
+                        <h3 class="other">${rolledNumb.vote_average}</h3>
+                        <p class="other">Overview:<br> ${rolledNumb.overview}</p>
+                    `;
+                    //textDistortion(rolledNumb.title);
+                    
+                })
+        })
+    </script>
+</body>
+</html>
