@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Limerik</title>
+</head>
+<body>
+    <h1>Limerick</h1>
+    <div class = "inputs">
+        <input id="topic" type="text" placeholder="Enter name" />
+        <input id = "loc" type="text" placeholder="Enter location"/> 
+    </div>
+   
+
+    <div id="output"></div>
+    <button id="get-joke">Get Limerik</button>
+
+    <script>
+      // ?
+      const getJokeButton = document.querySelector("#get-joke");
+
+      // ?
+      getJokeButton.addEventListener("click", async () => {
+        // ?
+        document.querySelector("#output").textContent = "loading...";
+
+        // ?
+        const topic = document.querySelector("#topic").value;
+        const location = document.querySelector("#loc").value;
+
+
+        // ?
+        const response = await fetch(`/api/joke?topic=${topic}&location=${location}`);
+        const joke = await response.text();
+
+        // ?
+        document.querySelector("#output").textContent = joke;
+      });
+    </script>
+</body>
+</html>
