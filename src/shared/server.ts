@@ -8,7 +8,7 @@ export async function staticServer(context: Context, next: Next) {
   try {
     await context.send({
       root: `${Deno.cwd()}/public`,
-      index: "index.html",
+      index: "akinator.html",
     });
   } catch {
     await next();
