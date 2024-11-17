@@ -17,14 +17,22 @@ confirm.addEventListener("click", async function () {
   if (result.sucess) {
     console.log(JSON.stringify(result["message"]));
     const quesField = document.getElementById("question");
-    quesField.innerText = result["message"][0];
+    //change the exiting questions to different
+    quesField.id = " ";
+    quesField.className = "prevQues";
     const conversation = document.getElementById("convo");
-    conversation.innerHTML = conversation.innerHTML +
-      `<p>${result["message"][1]}</P>`;
 
-    // if (result.guess) {
-    //   conversation.innerHTML = conversation.innerHTML +
-    //     `<h2>Thank you for playing</h2>`;
-    // }
+    if (result.guess) {
+      conversation.innerHTML = conversation.innerHTML +
+        `<h2>Thank you for playing</h2>`;
+    } else {
+      conversation.innerHTML = conversation.innerHTML +
+        `<p>${result["message"][1]}</P>
+      <p id="question">${result["message"][0]}</p>
+      `;
+    }
+  } else {
+    const _conversation = document.getElementById("convo");
+    _conversation.innerHTML = `<h1>${result["message"][0]}</h1>`;
   }
 });
