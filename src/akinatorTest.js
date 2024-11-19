@@ -21,7 +21,7 @@ const interpret_schema = {
     },
   },
 };
-
+let run = true;
 const guessing_schema = {
   name: "guess",
   schema: {
@@ -46,7 +46,7 @@ async function interperting(lastquestion, answer) {
       messages: [{
         role: "system",
         content:
-          "You are interpreting the meaning of an answer to a question. Only return true when the answer is affirmative.",
+          "You are interpreting the meaning of an answer to a question. Always respond with a JSON object in this exact format: { interpret: true } or { interpret: false }. Only return true if the answer is clearly affirmative, and false otherwise.",
       }, {
         role: "user",
         content:
@@ -60,12 +60,42 @@ async function interperting(lastquestion, answer) {
     });
 
     const rep = JSON.parse(intepretation.content);
-    console.log("interpreted a guess" + rep["interpret"]);
-    return rep["interpret"];
+    if ("interpret" in rep) {
+      console.log(JSON.stringify(rep));
+      console.log("interpreted a guess" + rep["interpret"]);
+      console.log(askedQuestions.length);
+      return rep["interpret"];
+    } else {
+      run = false;
+      return false;
+    }
   } else {
     return false;
   }
 }
+
+async function askGpt() {
+  const q = await gpt({
+    messages: [
+      {
+        role: "system",
+        content:
+          `You are playing a game with the user, and you are trying to fiure out what character that the use is thinking. 
+          Reponse should be concise and brief.
+        `,
+      },
+      {
+        role: "user",
+        content:
+          `Here are questions that have been asked: ${askedQuestions}, and here is my answer to those questions: ${pastResponse}. 
+          Ask me another question. `,
+      },
+    ],
+  });
+
+  return q["content"];
+}
+
 router.get("/akinator/api", async (ctx) => {
   const context = ctx.request.url.searchParams.get("question");
   askedQuestions.push(context);
@@ -76,11 +106,11 @@ router.get("/akinator/api", async (ctx) => {
   // console.log(askedQuestions);
 
   let newQues = " ";
-  let run = true;
+
   //interpreting that last guess and user confirmation;
   const guess = await interperting(context, response);
 
-  if (!guess) {
+  if (!guess && askedQuestions.length <= 24) {
     let guessed;
     if (askedQuestions.length % 5 == 0) {
       const r = await gpt({
@@ -111,30 +141,21 @@ router.get("/akinator/api", async (ctx) => {
       console.log(guessed);
       if (guessed.attempt == true) {
         newQues = guessed.guess;
+      } else {
+        newQues = await askGpt();
       }
-    } else if (askedQuestions.length % 5 != 0 || guessed.attempt == false) {
-      const q = await gpt({
-        messages: [
-          {
-            role: "system",
-            content:
-              `You are playing a game with the user, and you are trying to fiure out what character that the use is thinking. 
-              Reponse should be concise and brief.
-            `,
-          },
-          {
-            role: "user",
-            content:
-              `Here are questions that have been asked: ${askedQuestions}, and here is my answer to those questions: ${pastResponse}. 
-              Ask me another question. `,
-          },
-        ],
-      });
-
-      newQues = q["content"];
+    } else if (askedQuestions.length % 5 != 0) {
+      newQues = await askGpt();
     }
-  } else if (!guess && askedQuestions.length > 20) {
+  } else if (guess) {
+    askedQuestions.length = 0;
+    pastResponse.length = 0;
+  }
+
+  if (askedQuestions.length > 24 && guess == false) {
     newQues = "Sorry I can't guess it.";
+    askedQuestions.length = 0;
+    pastResponse.length = 0;
     run = false;
   }
 

@@ -3,12 +3,6 @@ const confirm = document.getElementById("confirm");
 confirm.addEventListener("click", async function () {
   const answer = document.getElementById("answer").value;
   const conversation = document.getElementById("convo");
-  //maybe check answer here;
-  if (answer.includes("got")) {
-    conversation.innerHTML = conversation.innerHTML +
-      `<h2>Thank you for playing</h2>`;
-    return;
-  }
   const question = document.getElementById("question").innerText;
   const response = await fetch(
     `/akinator/api?user_answer=${answer}&question=${question}`,
@@ -27,9 +21,11 @@ confirm.addEventListener("click", async function () {
         `<h2>Thank you for playing</h2>`;
     } else {
       conversation.innerHTML = conversation.innerHTML +
-        `<p>${result["message"][1]}</P>
+        `<p class= ans>${result["message"][1]}</P>
       <p id="question">${result["message"][0]}</p>
       `;
+      const nextQ = document.getElementById("question");
+      nextQ.scrollIntoView();
     }
   } else {
     const _conversation = document.getElementById("convo");
