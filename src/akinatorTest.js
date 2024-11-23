@@ -8,7 +8,7 @@ import { gpt } from "./shared/openai.ts";
 
 const app = new Application();
 const router = new Router();
-const askedQuestions = [];
+const askedQuestions = {};
 let pastResponse = [];
 const interpret_schema = {
   name: "interpretation",
@@ -36,11 +36,14 @@ const guessing_schema = {
     },
   },
 };
+
 //interpreting the natural response from the user;
 async function interperting(lastquestion, answer) {
+  const keys = Object.keys(askedQuestions);
+  const ques = keys.indexOf(lastquestion);
   if (
-    askedQuestions.indexOf(lastquestion) % 5 == 0 &&
-    askedQuestions.indexOf(lastquestion) != 0
+    ques % 5 == 0 &&
+    ques != 0
   ) {
     const intepretation = await gpt({
       messages: [{
@@ -87,8 +90,10 @@ async function askGpt() {
       {
         role: "user",
         content:
-          `Here are questions that have been asked: ${askedQuestions}, and here is my answer to those questions: ${pastResponse}. 
-          Ask me another question. `,
+          `Here are all the asked questions and their corresponding answer as key-value pairs in this Javascript Object: ${
+            JSON.stringify(askedQuestions)
+          }. 
+          Ask me another valuable question that will get you closer to the character that you are guessing. `,
       },
     ],
   });
@@ -98,10 +103,8 @@ async function askGpt() {
 
 router.get("/akinator/api", async (ctx) => {
   const context = ctx.request.url.searchParams.get("question");
-  askedQuestions.push(context);
-
   const response = ctx.request.url.searchParams.get("user_answer");
-  pastResponse.push(response);
+  askedQuestions[context] = response;
 
   // console.log(askedQuestions);
 
@@ -109,16 +112,17 @@ router.get("/akinator/api", async (ctx) => {
 
   //interpreting that last guess and user confirmation;
   const guess = await interperting(context, response);
-
-  if (!guess && askedQuestions.length <= 24) {
+  const keyLength = Object.keys(askedQuestions).length;
+  if (!guess && keyLength <= 24) {
     let guessed;
-    if (askedQuestions.length % 5 == 0) {
+    if (keyLength % 5 == 0) {
       const r = await gpt({
         messages: [
           {
             role: "system",
             content:
               `You are playing a game with the user, and you are trying to fiure out what character that the use is thinking.
+              The data that you will need to look at a javascript object with key-value pairs.
               Only make the guess if you have enough information to make an actual guess that has an actual character name.If not just return false to attempt.
               Reponse should be concise and brief.
                 `,
@@ -126,8 +130,10 @@ router.get("/akinator/api", async (ctx) => {
           {
             role: "user",
             content:
-              `Here are questions that have been asked: ${askedQuestions}, and here is my answer to those questions: ${pastResponse}. 
-                  Make A guess with the name of the character. `,
+              `Here are questions that have been asked and my answers to those questions are key-value pairs in this Javascript object: ${
+                JSON.stringify(askedQuestions)
+              }
+              Basing off of the combined information from this object, make A guess with the name of the character. `,
           },
         ],
         response_format: {
@@ -143,18 +149,19 @@ router.get("/akinator/api", async (ctx) => {
         newQues = guessed.guess;
       } else {
         newQues = await askGpt();
+        console.log(newQues);
       }
-    } else if (askedQuestions.length % 5 != 0) {
+    } else if (keyLength % 5 != 0) {
       newQues = await askGpt();
     }
   } else if (guess) {
-    askedQuestions.length = 0;
+    //askedQuestions.length = 0;
     pastResponse.length = 0;
   }
 
-  if (askedQuestions.length > 24 && guess == false) {
+  if (keyLength > 24 && guess == false) {
     newQues = "Sorry I can't guess it.";
-    askedQuestions.length = 0;
+    //askedQuestions.length = 0;
     pastResponse.length = 0;
     run = false;
   }

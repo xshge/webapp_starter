@@ -1,7 +1,9 @@
 body{
     width:auto;
-    height:100vh;
+    height:100%;
+    max-height: 1117px;
     display: flex;
+    background-color: #F04B07;
     flex-direction: column;
     align-items: center;
 }
@@ -9,42 +11,81 @@ body{
 #convo{
     width:25vw;
     height:50vh;
-    margin-top: 5rem;
     overflow-y: scroll;
     display: flex;
+    margin-top: 1rem;
     flex-direction: column;
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;
-    background-color: #52a2a1;
+    background-image: url(img/Rectangle\ 1.png);
+    background-size: 100% 100%;
+    
 }
+#title{
+    width:25vw;
+    height:fit-content;
+    margin-top: 1rem;
+}
+
 #convo::-webkit-scrollbar{
     display: none;
 }
 #question, .prevQues{
-    width: max-content;
+    width: auto;
     padding-inline-start: 1rem;
     padding-inline-end: 1.5rem;
     padding-block: 0.5rem;
-    text-align: center;
+    text-align: left;
+    text-wrap: wrap;
+    font-family: "Jersey 25", sans-serif;
+    font-weight: 600;
+    font-style: normal;
     border-radius: 25px;
     display: block;
     align-self: flex-start;
     margin-left: 2rem;
-    background-color: #e3dedb;
+    background-image: url(img/Rectangle\ 4.png);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
 }
 .ans{
     width: max-content;
     padding-inline-start: 1.5rem;
     padding-inline-end: 1rem;
     padding-block: 0.5rem;
-    text-align: center;
-    border-radius: 25px;
+    text-align: left;
+    font-family: "Jersey 25", sans-serif;
+    font-weight: 600;
+    font-style: normal;
+    
     display: block;
     align-self: flex-end;
     margin-right: 2rem;
-    background-color: antiquewhite;
+    background-image: url(img/Rectangle\ 4.png);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
 }
 .inputs{
-    position:absolute;
-    bottom:55px;
+    margin-top: 2rem;
+    width: 25vw;
+    height: 5vh;
+}
+input[type=text]{
+    text-align: center;
+    height: 150%;
+    width: 70%;
+    vertical-align: middle;
+    background-image: url(img/inputField.png);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-color: transparent;
+}
+button{
+    height: 150%;
+    width: 25%;
+    vertical-align: middle;
+    background-image: url(img/Group\ 1.png);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-color: transparent;
 }
