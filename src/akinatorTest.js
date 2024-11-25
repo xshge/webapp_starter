@@ -21,7 +21,9 @@ const interpret_schema = {
     },
   },
 };
+
 let run = true;
+
 const guessing_schema = {
   name: "guess",
   schema: {
@@ -83,7 +85,8 @@ async function askGpt() {
       {
         role: "system",
         content:
-          `You are playing a game with the user, and you are trying to fiure out what character that the use is thinking. 
+          `You are playing a game with the user, and you are trying to fiure out what character that the use is thinking.
+          The question should not be about making a guess, but about getting the information that will be neede to make the guess.
           Reponse should be concise and brief.
         `,
       },
@@ -97,7 +100,7 @@ async function askGpt() {
       },
     ],
   });
-
+  //console.log(JSON.stringify(askedQuestions));
   return q["content"];
 }
 
@@ -113,6 +116,7 @@ router.get("/akinator/api", async (ctx) => {
   //interpreting that last guess and user confirmation;
   const guess = await interperting(context, response);
   const keyLength = Object.keys(askedQuestions).length;
+
   if (!guess && keyLength <= 24) {
     let guessed;
     if (keyLength % 5 == 0) {
@@ -156,23 +160,32 @@ router.get("/akinator/api", async (ctx) => {
     }
   } else if (guess) {
     //askedQuestions.length = 0;
-    pastResponse.length = 0;
+    newQues = "Yay!! Thank you for playing";
+    run = false;
   }
 
-  if (keyLength > 24 && guess == false) {
+  if (keyLength > 25 && guess == false) {
     newQues = "Sorry I can't guess it.";
     //askedQuestions.length = 0;
     pastResponse.length = 0;
     run = false;
   }
 
-  //fail conditions;
+  //finish conditions;
 
   ctx.response.body = {
     "sucess": run,
     "guess": guess,
     "message": [newQues, response],
   };
+
+  if (!run) {
+    const keys = Object.keys(askedQuestions);
+    for (const key in keys) {
+      delete askedQuestions[key];
+    }
+    run = true;
+  }
 });
 
 app.use(router.routes());
